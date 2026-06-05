@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI CODING AGENTS DASHBOARD // MIASMA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&display=swap');
+
+:root {
+  --bg: #222222;
+  --bg-alt: #1a1a1a;
+  --fg: #c2c2b0;
+  --accent: #78824b;
+  --accent-dim: #5a6236;
+  --rust: #685742;
+  --green: #5f875f;
+  --orange: #b36d43;
+  --copper: #bb7744;
+  --gold: #c9a554;
+  --light-gold: #d7c483;
+  --gray: #666666;
+  --glow: rgba(120, 130, 75, 0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+  pointer-events: none;
+  z-index: 999;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(120,130,75,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 40px 20px 30px;
+  position: relative;
+  border-bottom: 1px solid rgba(120,130,75,0.2);
+  margin-bottom: 30px;
+}
+
+.header::after {
+  content: '▲';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--accent);
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--light-gold);
+  text-shadow:
+    0 0 20px var(--glow),
+    3px 3px 0 rgba(0,0,0,0.5);
+  position: relative;
+  display: inline-block;
+}
+
+.header h1::before {
+  content: '> ';
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.header h1::after {
+  content: ' _';
+  color: var(--accent);
+  font-weight: 300;
+  animation: blink 1.2s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.header .subtitle {
+  font-size: 0.8rem;
+  color: var(--gray);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.header .date-display {
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+/* GRID */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 1100px) {
+  .agents-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .agents-grid { grid-template-columns: 1fr; }
+}
+
+/* AGENT CARD */
+.agent-card {
+  background: linear-gradient(180deg, #2a2a2a 0%, #1e1e1e 100%);
+  border: 1px solid rgba(120,130,75,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.agent-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px var(--glow), inset 0 0 30px rgba(120,130,75,0.05);
+  transform: translateY(-2px);
+}
+
+.agent-card.card-codex { --card-accent: #78824b; }
+.agent-card.card-claude { --card-accent: #bb7744; }
+.agent-card.card-grok { --card-accent: #b36d43; }
+.agent-card.card-opencode { --card-accent: #5f875f; }
+
+.agent-card .card-header {
+  padding: 16px 18px 12px;
+  border-bottom: 2px solid var(--card-accent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+}
+
+.agent-card .card-header .agent-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--light-gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.agent-card .card-header .agent-name span {
+  color: var(--gray);
+  font-weight: 300;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+
+.agent-card .card-header .agent-badge {
+  font-size: 0.55rem;
+  padding: 3px 8px;
+  border: 1px solid var(--card-accent);
+  border-radius: 3px;
+  color: var(--card-accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(0,0,0,0.3);
+}
+
+.agent-card .card-body {
+  padding: 12px 18px 16px;
+}
+
+/* NEWS ITEMS */
+.news-item {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-item .news-date {
+  font-size: 0.6rem;
+  color: var(--card-accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+.news-item .news-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--fg);
+  line-height: 1.4;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-item .news-snippet {
+  font-size: 0.65rem;
+  color: var(--gray);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.8;
+}
+
+.news-item .news-link {
+  display: inline-block;
+  font-size: 0.6rem;
+  color: var(--card-accent);
+  text-decoration: none;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  border-bottom: 1px solid transparent;
+}
+
+.news-item .news-link:hover {
+  color: var(--light-gold);
+  border-bottom-color: var(--card-accent);
+}
+
+.news-item .news-link::before {
+  content: '→ ';
+}
+
+/* STATS BAR */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(120,130,75,0.1);
+  border-radius: 6px;
+  padding: 14px;
+  text-align: center;
+}
+
+.stat-item .stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+.stat-item .stat-label {
+  font-size: 0.6rem;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  border-top: 1px solid rgba(120,130,75,0.1);
+  margin-top: 30px;
+}
+
+.footer p {
+  font-size: 0.65rem;
+  color: var(--gray);
+  letter-spacing: 1px;
+}
+
+.footer .glitch-text {
+  color: var(--accent);
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-alt); }
+::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* GLITCH EFFECT */
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  100% { transform: translate(0); }
+}
+
+.glitch-hover:hover {
+  animation: glitch 0.3s ease-in-out;
+}
+
+/* RESPONSIVE STATS */
+@media (max-width: 600px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .header h1 { font-size: 1.3rem; letter-spacing: 3px; }
+}
+
+/* SHIMMER */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loading-pulse {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* NOISE OVERLAY FOR EXTRA GRUNGE */
+.noise {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 998;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: noiseAnim 0.5s steps(4) infinite;
+}
+
+@keyframes noiseAnim {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 5%); }
+  60% { transform: translate(15%, 0); }
+  70% { transform: translate(0, 10%); }
+  80% { transform: translate(-15%, 0); }
+  90% { transform: translate(10%, 5%); }
+  100% { transform: translate(5%, 0); }
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<div class="container">
+  <header class="header">
+    <h1>CODING AGENTS ARENA</h1>
+    <p class="subtitle">// latest intelligence feed //</p>
+    <p class="date-display" id="dateDisplay">SCANNING SIGNAL...</p>
+  </header>
+
+  <div class="agents-grid" id="agentsGrid">
+  </div>
+
+  <div class="stats-bar" id="statsBar">
+  </div>
+
+  <footer class="footer">
+    <p class="glitch-text">[ system: omarchy-miasma theme // signal: stable ]</p>
+    <p>built for the AI coding agents challenge &bull; data sourced from live feeds</p>
+  </footer>
+</div>
+
+<script>
+const agents = [
+  {
+    id: 'codex',
+    name: 'CODEX',
+    maker: 'OpenAI',
+    badge: 'GPT-5.5',
+    accent: '#78824b',
+    stats: { label: 'SWE-Bench', value: '58.6%' },
+    news: [
+      {
+        date: 'Jun 2, 2026',
+        title: 'Build and deploy websites with Sites preview',
+        snippet: 'Codex adds Sites for creating, deploying, and managing hosted web projects directly in the app with the new Sites plugin.',
+        url: 'https://releasebot.io/updates/openai/codex'
+      },
+      {
+        date: 'May 22, 2026',
+        title: 'OpenAI named Leader in enterprise coding agents by Gartner',
+        snippet: 'Codex recognized in Gartner Magic Quadrant for Enterprise AI Coding Agents, used by 4M+ people weekly at Cisco, Datadog, Dell, NVIDIA.',
+        url: 'https://openai.com/index/gartner-2026-agentic-coding-leader/'
+      },
+      {
+        date: 'Apr 23, 2026',
+        title: 'GPT-5.5 Codex: Autonomous coding with Spud',
+        snippet: 'GPT-5.5 is the first fully retrained base model since GPT-4, with Codex handling multi-hour refactoring, multi-agent teams, and CI/CD integration.',
+        url: 'https://lushbinary.com/blog/gpt-5-5-codex-autonomous-coding-agents-guide'
+      },
+      {
+        date: 'Feb 5, 2026',
+        title: 'GPT-5.3-Codex: Most capable agentic coding model',
+        snippet: 'New model advances frontier coding with SWE-Bench Pro SOTA, 25% faster, and was instrumental in creating itself — debugging its own training.',
+        url: 'https://openai.com/index/introducing-gpt-5-3-codex'
+      }
+    ]
+  },
+  {
+    id: 'claude',
+    name: 'CLAUDE',
+    maker: 'Anthropic',
+    badge: 'Opus 4.8',
+    accent: '#bb7744',
+    stats: { label: 'Context', value: '1M' },
+    news: [
+      {
+        date: 'May 28, 2026',
+        title: 'Claude Opus 4.8 ships with Dynamic Workflows',
+        snippet: 'New mode reclaims coding and agentic benchmark lead. Fast Mode is 3x cheaper. Sonnet 4.6 and Opus 4.8 form the current frontier lineup.',
+        url: 'https://osasai.com/blog/ai-news-first-week-june-2026'
+      },
+      {
+        date: 'May 8, 2026',
+        title: '"Code with Claude" — Everything Anthropic announced',
+        snippet: 'Second annual developer conference marked the transition from AI assistant to full development platform with new tooling and API capabilities.',
+        url: 'https://digitrendz.blog/tech-news/181550/the-complete-guide-to-code-with-claude-2026-everything-anthropic-just-announced/'
+      },
+      {
+        date: 'Apr 23, 2026',
+        title: 'Update on recent Claude Code quality reports',
+        snippet: 'Three separate issues traced and resolved as of April 20. Anthropic published a detailed postmortem on the quality regression.',
+        url: 'https://www.anthropic.com/engineering/april-23-postmortem'
+      },
+      {
+        date: 'Feb 5, 2026',
+        title: 'Claude Opus 4.6: 1M context & agentic coding focus',
+        snippet: 'Big upgrade over Opus 4.5 with better agentic coding, 1M token context window (first for Opus-class), and 128K output capability.',
+        url: 'https://philippdubach.com/posts/claude-opus-4.6-anthropics-new-flagship-ai-model-for-agentic-coding/'
+      }
+    ]
+  },
+  {
+    id: 'grok',
+    name: 'GROK',
+    maker: 'xAI',
+    badge: 'Build 0.1',
+    accent: '#b36d43',
+    stats: { label: 'SWE-Bench', value: '70.8%' },
+    news: [
+      {
+        date: 'May 26, 2026',
+        title: 'Grok Build + Skills + Connectors: xAI Dev Stack',
+        snippet: 'xAI shipped a coding agent, skills system, and connectors layer in one month. Grok Build has up to 8 parallel sub-agents and 256K context.',
+        url: 'https://codersera.com/blog/xai-grok-build-skills-connectors-guide-2026/'
+      },
+      {
+        date: 'May 18, 2026',
+        title: 'xAI launches Grok Build coding agent for developers',
+        snippet: 'Early-beta CLI for SuperGrok Heavy ($300/mo) subscribers. Local-first design — no source code transmitted to xAI servers.',
+        url: 'https://www.eweek.com/news/xai-grok-build-coding-agent/'
+      },
+      {
+        date: 'May 15, 2026',
+        title: 'Grok Build: xAI enters the coding agent race',
+        snippet: 'Terminal-native agent with plan-review, parallel sub-agents, VS Code integration, and a three-stage workflow: Plan → Search → Execute.',
+        url: 'https://pasqualepillitteri.it/en/news/2584/grok-build-xai-cli-2026'
+      },
+      {
+        date: 'Apr 30, 2026',
+        title: 'Grok 4.3: 1M context, video input, 58% price cut',
+        snippet: 'New flagship model with native video analysis (up to 5 min), PDF/XLSX/PPTX generation, and dramatically reduced API pricing.',
+        url: 'https://mysummit.school/blog/en/grok-xai-review-2026'
+      }
+    ]
+  },
+  {
+    id: 'opencode',
+    name: 'OPENCODE',
+    maker: 'Open Source',
+    badge: 'MIT',
+    accent: '#5f875f',
+    stats: { label: 'GitHub ★', value: '95K+' },
+    news: [
+      {
+        date: 'Jun 4, 2026',
+        title: 'Setup and Customize OpenCode — Complete Guide',
+        snippet: 'Comprehensive installation guide for macOS, Linux, Windows. Covers TUI, agents, MCP, LSP, themes, VS Code integration, and 75+ providers.',
+        url: 'https://computingforgeeks.com/setup-opencode-ai-coding-agent'
+      },
+      {
+        date: 'May 14, 2026',
+        title: 'OpenCode Review 2026: Terminal AI Coding Agent',
+        snippet: 'OpenCode praised for terminal-first workflow, multi-model support (75+ providers), privacy-first design, and MIT license. Dominant open-source coding agent.',
+        url: 'https://ohaiknow.com/reviews/opencode'
+      },
+      {
+        date: 'Jan 2026',
+        title: 'GitHub officially partners with OpenCode',
+        snippet: 'GitHub Copilot subscribers can authenticate through OpenCode without additional license. 95K+ GitHub stars, explosive growth as open-source Claude Code alternative.',
+        url: 'https://morphllm.com/best-ai-coding-agents-2026'
+      },
+      {
+        date: 'Feb 22, 2026',
+        title: 'OpenCode Docs: Free open-source AI coding agent',
+        snippet: 'Official documentation launched highlighting multi-provider support (OpenAI, Anthropic, local), LSP integration, and multi-session parallel agents.',
+        url: 'https://open-code.ai/en'
+      }
+    ]
+  }
+];
+
+function render() {
+  const grid = document.getElementById('agentsGrid');
+  const statsBar = document.getElementById('statsBar');
+
+  grid.innerHTML = agents.map(agent => `
+    <div class="agent-card card-${agent.id}">
+      <div class="card-header">
+        <div class="agent-name">
+          ${agent.name}
+          <span>// ${agent.maker}</span>
+        </div>
+        <div class="agent-badge glitch-hover">${agent.badge}</div>
+      </div>
+      <div class="card-body">
+        ${agent.news.map(item => `
+          <div class="news-item">
+            <div class="news-date">${item.date}</div>
+            <div class="news-title">${item.title}</div>
+            <div class="news-snippet">${item.snippet}</div>
+            <a class="news-link" href="${item.url}" target="_blank" rel="noopener">read</a>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  statsBar.innerHTML = agents.map(agent => `
+    <div class="stat-item">
+      <div class="stat-value">${agent.stats.value}</div>
+      <div class="stat-label">${agent.name} ${agent.stats.label}</div>
+    </div>
+  `).join('');
+}
+
+// Date display
+function updateDate() {
+  const now = new Date();
+  const opts = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+  document.getElementById('dateDisplay').textContent =
+    `// SIGNAL ACQUIRED: ${now.toLocaleDateString('en-US', opts).toUpperCase()} //`;
+}
+
+updateDate();
+render();
+
+// Trigger re-scan
+setInterval(() => {
+  const dateEl = document.getElementById('dateDisplay');
+  const dots = dateEl.textContent.match(/\./g)?.length || 0;
+  if (dots < 3) {
+    dateEl.textContent += '.';
+  } else {
+    updateDate();
+  }
+}, 3000);
+</script>
+</body>
+</html>
