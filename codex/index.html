@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Wire // Miasma News Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="hero">
+      <nav class="topbar" aria-label="Dashboard">
+        <a class="brand" href="#">
+          <span class="brand-mark">aw</span>
+          <span>Agent Wire</span>
+        </a>
+        <div class="nav-actions" aria-label="Agent filters">
+          <button class="chip is-active" data-filter="all" type="button">All</button>
+          <button class="chip" data-filter="Codex" type="button">Codex</button>
+          <button class="chip" data-filter="Claude" type="button">Claude</button>
+          <button class="chip" data-filter="Grok" type="button">Grok</button>
+          <button class="chip" data-filter="OpenCode" type="button">OpenCode</button>
+        </div>
+      </nav>
+
+      <section class="hero-grid">
+        <div class="headline">
+          <p class="eyebrow">miasma-theme news console</p>
+          <h1>Latest signal on the four coding agents.</h1>
+          <p class="dek">
+            A terminal-styled dashboard tracking Codex, Claude Code, Grok, and
+            OpenCode across launches, model upgrades, agent features, and adoption.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-action" href="#feed">Scan feed</a>
+            <a class="secondary-action" href="#sources">Sources</a>
+          </div>
+        </div>
+
+        <aside class="status-panel" aria-label="Dashboard status">
+          <div class="panel-header">
+            <span>~/agent-wire</span>
+            <span>online</span>
+          </div>
+          <dl class="status-list">
+            <div>
+              <dt>Agents</dt>
+              <dd>4</dd>
+            </div>
+            <div>
+              <dt>Latest item</dt>
+              <dd>May 28, 2026</dd>
+            </div>
+            <div>
+              <dt>Theme</dt>
+              <dd>Miasma</dd>
+            </div>
+          </dl>
+          <div class="meter" aria-label="Signal activity">
+            <span style="--level: 81%"></span>
+            <span style="--level: 63%"></span>
+            <span style="--level: 52%"></span>
+            <span style="--level: 75%"></span>
+            <span style="--level: 44%"></span>
+            <span style="--level: 89%"></span>
+            <span style="--level: 58%"></span>
+            <span style="--level: 69%"></span>
+          </div>
+        </aside>
+      </section>
+    </header>
+
+    <main>
+      <section class="agents" aria-labelledby="agents-title">
+        <div class="section-heading">
+          <p class="eyebrow">watchlist</p>
+          <h2 id="agents-title">Agent briefs</h2>
+        </div>
+        <div class="agent-grid" id="agentGrid"></div>
+      </section>
+
+      <section class="console" id="feed" aria-labelledby="feed-title">
+        <div class="section-heading feed-heading">
+          <div>
+            <p class="eyebrow">live archive</p>
+            <h2 id="feed-title">News feed</h2>
+          </div>
+          <label class="search">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="model, IDE, benchmark..." />
+          </label>
+        </div>
+        <div class="feed-layout">
+          <div class="timeline" id="timeline"></div>
+          <aside class="command-card">
+            <div class="panel-header">
+              <span>agentctl compare</span>
+              <span>2026-06-05</span>
+            </div>
+            <div class="compare-row">
+              <span>Cloud parallel work</span>
+              <strong>Codex</strong>
+            </div>
+            <div class="compare-row">
+              <span>Deep coding model cadence</span>
+              <strong>Claude</strong>
+            </div>
+            <div class="compare-row">
+              <span>Code-tuned speed model</span>
+              <strong>Grok</strong>
+            </div>
+            <div class="compare-row">
+              <span>Open terminal + desktop agent</span>
+              <strong>OpenCode</strong>
+            </div>
+            <p class="terminal-note">
+              Source links open official pages, docs, model cards, or project pages.
+              Items are static snapshots gathered for this challenge.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="sources" id="sources" aria-labelledby="sources-title">
+        <div class="section-heading">
+          <p class="eyebrow">provenance</p>
+          <h2 id="sources-title">Source map</h2>
+        </div>
+        <div class="source-grid" id="sourceGrid"></div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
