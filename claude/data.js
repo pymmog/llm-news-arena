@@ -1,0 +1,263 @@
+/**
+ * data.js — news payload for the Miasma Coding Agent Arena.
+ *
+ * Loaded directly as window.NEWS so the dashboard works from file:// with no
+ * server and no CORS headaches. `refresh.mjs` regenerates this file (and the
+ * mirror news.json) from live release feeds.
+ *
+ * Seed data captured 2026-06-05 from public reporting (sources on each item).
+ */
+window.NEWS = {
+  generatedAt: "2026-06-05T00:00:00Z",
+  source: "seed",
+  agents: {
+    codex: {
+      name: "Codex",
+      vendor: "OpenAI",
+      tagline: "From pair-programmer to a team of agents you supervise.",
+      color: "#c9a554",
+      repo: "openai/codex",
+      site: "https://developers.openai.com/codex/changelog",
+      stats: [
+        { label: "flagship", value: "GPT-5.3-Codex" },
+        { label: "weekly users", value: "4M+" },
+        { label: "bench", value: "SOTA SWE-Bench Pro" }
+      ],
+      items: [
+        {
+          date: "2026-06-02",
+          tag: "model",
+          title: "GPT-5.3-Codex sets a new industry high",
+          summary:
+            "The new flagship moves Codex beyond writing code to operating a computer end to end — topping SWE-Bench Pro and Terminal-Bench, with strong OSWorld and GDPval scores.",
+          url: "https://openai.com/index/introducing-gpt-5-3-codex/",
+          source: "openai.com"
+        },
+        {
+          date: "2026-05-14",
+          tag: "product",
+          title: "Codex is coming to your phone",
+          summary:
+            "OpenAI says Codex will run on mobile, extending background autonomous tasks beyond the desktop so agents keep working while you're away from the keyboard.",
+          url: "https://techcrunch.com/2026/05/14/openai-says-codex-is-coming-to-your-phone/",
+          source: "techcrunch.com"
+        },
+        {
+          date: "2026-04-22",
+          tag: "milestone",
+          title: "Named a Leader in Gartner Magic Quadrant",
+          summary:
+            "OpenAI is recognized as a Leader for Enterprise AI Coding Agents. Codex now reaches more than 4 million people every week.",
+          url: "https://openai.com/index/gartner-2026-agentic-coding-leader/",
+          source: "openai.com"
+        },
+        {
+          date: "2026-03-04",
+          tag: "release",
+          title: "Codex app lands on Windows",
+          summary:
+            "The Codex app reframes building software — from pairing with one agent on edits to supervising coordinated teams across design, build, ship and maintain. Now available on Windows.",
+          url: "https://openai.com/index/introducing-the-codex-app/",
+          source: "openai.com"
+        },
+        {
+          date: "2026-02-18",
+          tag: "feature",
+          title: "Sites preview: deploy apps hosted by OpenAI",
+          summary:
+            "Sites lets you create, save, deploy and inspect websites, dashboards, internal tools, web apps and games — all hosted by OpenAI, straight from the Codex app.",
+          url: "https://developers.openai.com/codex/changelog",
+          source: "developers.openai.com"
+        }
+      ]
+    },
+
+    claude: {
+      name: "Claude",
+      vendor: "Anthropic",
+      tagline: "It now writes most of its own production code.",
+      color: "#bb7744",
+      repo: "anthropics/claude-code",
+      site: "https://releasebot.io/updates/anthropic/claude-code",
+      stats: [
+        { label: "default", value: "Opus 4.8" },
+        { label: "self-authored", value: "80% of prod" },
+        { label: "event", value: "Code w/ Claude '26" }
+      ],
+      items: [
+        {
+          date: "2026-06-04",
+          tag: "release",
+          title: "Opus 4.8 becomes the Claude Code default",
+          summary:
+            "Claude Code ships Opus 4.8 as the new default plus dynamic workflows and a security-guidance plugin, with a faster fast mode at a lower price and broad plugin, skills, hooks and background-job improvements.",
+          url: "https://releasebot.io/updates/anthropic/claude-code",
+          source: "releasebot.io"
+        },
+        {
+          date: "2026-05-28",
+          tag: "milestone",
+          title: "80% of Anthropic's new code authored by Claude",
+          summary:
+            "More than 80% of code merged into Anthropic's production codebase is now written by Claude — up from low single digits when Claude Code launched in Feb 2025.",
+          url: "https://venturebeat.com/technology/anthropic-says-80-of-its-new-production-code-is-now-authored-by-claude-how-your-enterprise-can-keep-up",
+          source: "venturebeat.com"
+        },
+        {
+          date: "2026-05-06",
+          tag: "event",
+          title: "Code with Claude 2026: managed agents",
+          summary:
+            "At its San Francisco event Anthropic unveiled managed agents, proactive workflows and the capability curve, with sessions spanning Claude Code, the Developer Platform and partner deployments.",
+          url: "https://www.infoq.com/news/2026/05/code-with-claude/",
+          source: "infoq.com"
+        },
+        {
+          date: "2026-04-30",
+          tag: "security",
+          title: "Security plugin + faster performance",
+          summary:
+            "The new security-guidance plugin monitors code edits, diffs and commits in real time to flag dangerous patterns — available to all users from the plugin marketplace.",
+          url: "https://cybersecuritynews.com/anthropic-updates-claude-code/",
+          source: "cybersecuritynews.com"
+        },
+        {
+          date: "2026-04-11",
+          tag: "model",
+          title: "Mythos-class models confirmed for public rollout",
+          summary:
+            "Anthropic confirms its next Mythos-class models will roll out to the public, extending the coding and agentic gains seen across the Opus line.",
+          url: "https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-confirms-claude-mythos-class-models-will-roll-out-to-the-public/",
+          source: "bleepingcomputer.com"
+        }
+      ]
+    },
+
+    grok: {
+      name: "Grok",
+      vendor: "xAI",
+      tagline: "Eight agents enter the arena. One output wins.",
+      color: "#5f875f",
+      repo: null,
+      site: "https://x.ai/news/grok-build-cli",
+      stats: [
+        { label: "product", value: "Grok Build" },
+        { label: "parallel agents", value: "up to 8" },
+        { label: "SWE-Bench", value: "70.8% verified" }
+      ],
+      items: [
+        {
+          date: "2026-05-15",
+          tag: "launch",
+          title: "xAI launches Grok Build to rival Claude Code",
+          summary:
+            "Grok Build is a 'powerful new coding agent and CLI for professional software engineering,' working directly from the terminal. Early beta, initially for SuperGrok Heavy subscribers.",
+          url: "https://x.ai/news/grok-build-cli",
+          source: "x.ai"
+        },
+        {
+          date: "2026-05-15",
+          tag: "feature",
+          title: "Eight parallel agents and Arena Mode",
+          summary:
+            "Grok Build runs up to eight agents at once, each through a plan → search → build workflow. Arena Mode auto-scores and ranks competing outputs before the developer reviews them.",
+          url: "https://dataconomy.com/2026/05/15/xai-launches-grok-build-coding-agent-for-developers/",
+          source: "dataconomy.com"
+        },
+        {
+          date: "2026-05-15",
+          tag: "benchmark",
+          title: "70.8% on SWE-Bench Verified",
+          summary:
+            "The underlying model scores 70.8% on SWE-Bench Verified — putting Grok Build in the same competitive range as the leading offerings from Anthropic and OpenAI.",
+          url: "https://www.eweek.com/news/xai-grok-build-coding-agent/",
+          source: "eweek.com"
+        },
+        {
+          date: "2026-05-16",
+          tag: "pricing",
+          title: "SuperHeavy tier at $99/mo to lure rivals",
+          summary:
+            "xAI introduced a SuperHeavy tier at $99 per month for the first six months — a 67% discount aimed squarely at pulling competitors' users into the xAI ecosystem.",
+          url: "https://devops.com/xai-enters-the-coding-agent-race-with-grok-build/",
+          source: "devops.com"
+        },
+        {
+          date: "2026-05-15",
+          tag: "context",
+          title: "Musk: xAI is racing to close the coding gap",
+          summary:
+            "xAI enters a crowded coding-agent race after Elon Musk admitted the company had fallen behind rivals on coding. Grok Build is its bid to catch up.",
+          url: "https://www.ciodive.com/news/xAI-coding-agents-Grok-Build/820422/",
+          source: "ciodive.com"
+        }
+      ]
+    },
+
+    opencode: {
+      name: "OpenCode",
+      vendor: "Open Source",
+      tagline: "The terminal-first agent that ate the open-source harness market.",
+      color: "#78824b",
+      repo: "anomalyco/opencode",
+      site: "https://opencode.ai/",
+      stats: [
+        { label: "GitHub", value: "167K+ stars" },
+        { label: "models", value: "75+ providers" },
+        { label: "license", value: "MIT" }
+      ],
+      items: [
+        {
+          date: "2026-05-20",
+          tag: "milestone",
+          title: "Past 167K stars — the most-used OSS coding harness",
+          summary:
+            "OpenCode's 'Show HN' hit #1 within hours back in March. The star count is now past 167,000, making it the most widely used open-source coding harness.",
+          url: "https://dev.to/ji_ai/opencode-hit-140k-stars-why-terminal-agents-won-2026-aci",
+          source: "dev.to"
+        },
+        {
+          date: "2026-05-09",
+          tag: "release",
+          title: "v1.15.13: smarter adaptive reasoning",
+          summary:
+            "Gateway Anthropic Opus 4.7+ adaptive reasoning now keeps summarized thinking instead of returning empty thinking blocks, and sessions can store custom metadata via API and SDK.",
+          url: "https://github.com/anomalyco/opencode/releases",
+          source: "github.com"
+        },
+        {
+          date: "2026-04-28",
+          tag: "growth",
+          title: "Passes Cline and OpenHands, closes on Aider",
+          summary:
+            "Between January and April 2026 OpenCode crossed Cline, crossed OpenHands and closed the gap on Aider — despite Aider's two-year head start.",
+          url: "https://aicoderscope.com/blog/opencode-review-2026/",
+          source: "aicoderscope.com"
+        },
+        {
+          date: "2026-03-15",
+          tag: "feature",
+          title: "Provider-agnostic, 75+ models, polished TUI",
+          summary:
+            "A Go binary that opens a native TUI, OpenCode supports multi-session work and 75+ models — Claude, OpenAI, Gemini and local — MIT-licensed and provider-agnostic from day one.",
+          url: "https://opencode.ai/",
+          source: "opencode.ai"
+        },
+        {
+          date: "2026-02-19",
+          tag: "coverage",
+          title: "The open agent competing with Claude Code & Copilot",
+          summary:
+            "InfoQ profiles OpenCode as an open-source AI coding agent challenging Claude Code and Copilot, with BYOK as the cheapest path to a Claude-powered terminal agent.",
+          url: "https://www.infoq.com/news/2026/02/opencode-coding-agent/",
+          source: "infoq.com"
+        }
+      ]
+    }
+  }
+};
+
+// Mirror to a CommonJS-ish export so refresh.mjs / Node tooling can reuse it.
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = window.NEWS;
+}
