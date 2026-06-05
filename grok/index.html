@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIASMA • Coding Agents Arena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600&amp;display=swap');
+
+    :root {
+      --bg: #222222;
+      --fg: #c2c2b0;
+      --accent: #78824b;
+      --gold: #c9a554;
+      --rust: #b36d43;
+      --forest: #5f875f;
+      --brown: #685742;
+      --orange: #bb7744;
+      --dim: #666666;
+      --card: #1a1a1a;
+      --border: #44403a;
+    }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #666666 #222222;
+    }
+
+    body {
+      font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+
+    .miasma-bg {
+      background-color: #222222;
+      background-image: 
+        radial-gradient(circle at 25% 30%, rgba(120, 130, 75, 0.035) 0%, transparent 50%),
+        radial-gradient(circle at 75% 70%, rgba(201, 165, 84, 0.025) 0%, transparent 60%);
+    }
+
+    .fog {
+      position: relative;
+    }
+
+    .fog::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(34,34,34,0.1) 0%,
+        rgba(34,34,34,0.4) 40%,
+        rgba(34,34,34,0.6) 100%
+      );
+      pointer-events: none;
+      z-index: 1;
+      animation: fog-drift 25s ease-in-out infinite;
+    }
+
+    @keyframes fog-drift {
+      0%, 100% { opacity: 0.65; transform: translateY(0); }
+      50% { opacity: 0.9; transform: translateY(-8px); }
+    }
+
+    .mist {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mist::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(201,165,84,0.06) 0%, transparent 40%);
+      animation: mist-move 40s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes mist-move {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(8%, 12%); }
+    }
+
+    .agent-card {
+      background-color: #1a1a1a;
+      border: 1px solid #44403a;
+      transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .agent-card:hover {
+      border-color: #666666;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px -15px rgba(0,0,0,0.6);
+    }
+
+    .agent-header {
+      border-bottom: 1px solid #44403a;
+    }
+
+    .news-item {
+      background-color: #161616;
+      border-left: 3px solid #666666;
+      transition: all 0.15s ease;
+    }
+
+    .news-item:hover {
+      background-color: #1f1f1f;
+      border-left-color: var(--accent);
+    }
+
+    .section-title {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .miasma-border {
+      border-color: #44403a;
+    }
+
+    .terminal {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      background: #161616;
+    }
+
+    .stat-value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .news-title {
+      color: #c2c2b0;
+      line-height: 1.3;
+    }
+
+    .agent-accent-codex { color: #b36d43; border-color: #b36d43; }
+    .agent-accent-claude { color: #78824b; border-color: #78824b; }
+    .agent-accent-grok { color: #c9a554; border-color: #c9a554; }
+    .agent-accent-opencode { color: #5f875f; border-color: #5f875f; }
+
+    .lore {
+      font-size: 12px;
+      line-height: 1.4;
+      opacity: 0.85;
+    }
+
+    .fog-particle {
+      position: absolute;
+      background: #c2c2b0;
+      border-radius: 50%;
+      opacity: 0.08;
+      pointer-events: none;
+      animation: particle-drift 30s linear infinite;
+    }
+
+    .sharp {
+      border-radius: 0 !important;
+    }
+
+    .miasma-title {
+      font-weight: 600;
+      letter-spacing: -1.5px;
+    }
+
+    .feed-container {
+      scrollbar-width: thin;
+    }
+
+    .hn-badge {
+      background: #2a2a2a;
+      color: #b36d43;
+      font-size: 10px;
+      padding: 1px 6px;
+    }
+
+    .source-badge {
+      font-size: 9px;
+      padding: 1px 5px;
+      background: #252525;
+      color: #888;
+    }
+
+    .glow-green {
+      box-shadow: 0 0 0 1px rgba(120, 130, 75, 0.2);
+    }
+  </style>
+</head>
+<body class="miasma-bg text-[#c2c2b0] min-h-screen selection:bg-[#78824b] selection:text-[#222222]">
+  <!-- HEADER -->
+  <header class="border-b border-[#44403a] bg-[#1a1a1a]/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-[1280px] mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-x-4">
+          <!-- Logo -->
+          <div class="flex items-center gap-x-3">
+            <div class="w-9 h-9 border border-[#78824b] flex items-center justify-center relative">
+              <div class="w-4 h-4 bg-[#78824b] opacity-80"></div>
+              <div class="absolute inset-0 border border-[#78824b] opacity-30"></div>
+            </div>
+            <div>
+              <div class="miasma-title text-2xl tracking-tighter">MIASMA</div>
+              <div class="text-[9px] text-[#666666] -mt-1.5 tracking-[3px]">ARENA</div>
+            </div>
+          </div>
+          <div class="hidden sm:block pl-3 border-l border-[#44403a]">
+            <div class="text-xs text-[#78824b] font-medium">CODING AGENTS • LIVE FROM THE FOG</div>
+            <div class="text-[10px] text-[#666666]">A fog descends upon the editor</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-x-3">
+          <!-- Status -->
+          <div class="hidden md:flex items-center gap-x-2 px-3 py-1.5 bg-[#161616] border border-[#44403a] text-xs">
+            <div class="w-1.5 h-1.5 bg-[#5f875f] rounded-full animate-pulse"></div>
+            <span class="text-[#888]">FOG DENSITY: <span id="fog-density" class="text-[#c2c2b0] mono">MODERATE</span></span>
+            <span class="text-[#444]">•</span>
+            <span id="total-whispers" class="mono text-[#78824b]"></span>
+          </div>
+
+          <!-- Global search -->
+          <div class="relative w-64">
+            <input id="global-search" 
+                   type="text" 
+                   placeholder="FILTER THE MISTS..." 
+                   class="w-full bg-[#161616] border border-[#44403a] text-sm px-4 py-2 pl-9 focus:outline-none focus:border-[#78824b] sharp placeholder:text-[#555]">
+            <i class="fa fa-search absolute left-3.5 top-2.5 text-[#555] text-xs"></i>
+          </div>
+
+          <!-- Actions -->
+          <button onclick="refreshAll()" 
+                  class="flex items-center gap-x-2 px-4 py-2 bg-[#78824b] hover:bg-[#5f875f] active:bg-[#4a6640] text-[#222222] text-sm font-medium sharp transition-colors">
+            <i class="fa fa-sync-alt mr-1.5"></i>
+            <span>EMERGE ALL</span>
+          </button>
+
+          <button onclick="summonFog()" 
+                  class="px-3 py-2 border border-[#44403a] hover:bg-[#252525] text-xs tracking-widest sharp transition-colors">
+            <i class="fa fa-cloud mr-1"></i> ORACLE
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-[1280px] mx-auto px-6 pt-8 pb-16">
+    <!-- HERO / INTRO -->
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-y-4 mb-8">
+      <div>
+        <div class="uppercase tracking-[4px] text-xs text-[#78824b] mb-1">EST. 2026 • THE WOODS REMEMBER</div>
+        <h1 class="text-5xl md:text-6xl miasma-title tracking-[-3.5px] leading-none">WHISPERS FROM<br>THE FOG</h1>
+        <p class="mt-3 max-w-md text-[#a8a89a] text-[15px]">
+          Real-time intelligence on the four great coding agents emerging from the miasma.
+        </p>
+      </div>
+      <div class="text-right text-xs text-[#666]">
+        <div id="last-updated" class="mono"></div>
+        <div class="mt-1">4 agents • 1 arena • endless fog</div>
+      </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div class="agent-card px-5 py-4 sharp flex items-center justify-between">
+        <div>
+          <div class="section-title text-[#b36d43]">CODEX</div>
+          <div class="text-2xl font-semibold mono tracking-tighter" id="stat-codex">—</div>
+        </div>
+        <i class="fa fa-fire text-[#b36d43] text-2xl opacity-60"></i>
+      </div>
+      <div class="agent-card px-5 py-4 sharp flex items-center justify-between">
+        <div>
+          <div class="section-title text-[#78824b]">CLAUDE</div>
+          <div class="text-2xl font-semibold mono tracking-tighter" id="stat-claude">—</div>
+        </div>
+        <i class="fa fa-mountain text-[#78824b] text-2xl opacity-60"></i>
+      </div>
+      <div class="agent-card px-5 py-4 sharp flex items-center justify-between">
+        <div>
+          <div class="section-title text-[#c9a554]">GROK</div>
+          <div class="text-2xl font-semibold mono tracking-tighter" id="stat-grok">—</div>
+        </div>
+        <i class="fa fa-bolt text-[#c9a554] text-2xl opacity-60"></i>
+      </div>
+      <div class="agent-card px-5 py-4 sharp flex items-center justify-between">
+        <div>
+          <div class="section-title text-[#5f875f]">OPEN<span class="text-xs align-super">CODE</span></div>
+          <div class="text-2xl font-semibold mono tracking-tighter" id="stat-opencode">—</div>
+        </div>
+        <i class="fa fa-tree text-[#5f875f] text-2xl opacity-60"></i>
+      </div>
+    </div>
+
+    <!-- AGENTS GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5" id="agents-grid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- UNIFIED FOG FEED -->
+    <div class="mt-10">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div>
+          <span class="section-title text-[#c9a554]">THE FOG • UNIFIED TIMELINE</span>
+          <span class="ml-3 text-xs text-[#666]">all recent emergences, sorted by recency</span>
+        </div>
+        <button onclick="renderUnifiedFeed()" 
+                class="text-xs px-3 py-1 border border-[#44403a] hover:bg-[#252525] sharp transition-colors">
+          <i class="fa fa-redo mr-1"></i> RESORT
+        </button>
+      </div>
+
+      <div id="unified-feed" 
+           class="agent-card p-2 max-h-[420px] overflow-auto feed-container sharp border border-[#44403a]">
+        <!-- JS populated -->
+      </div>
+    </div>
+
+    <!-- SWE-BENCH ARENA + LORE -->
+    <div class="mt-10 grid grid-cols-1 lg:grid-cols-5 gap-5">
+      <!-- SWE Arena -->
+      <div class="lg:col-span-3 agent-card p-6 sharp">
+        <div class="flex items-baseline justify-between mb-4">
+          <div>
+            <span class="section-title text-[#bb7744]">SWE-BENCH ARENA</span>
+            <span class="text-[10px] ml-2 text-[#555]">VERIFIED • LATEST REPORTED</span>
+          </div>
+          <a href="https://www.swebench.com/" target="_blank" class="text-[10px] text-[#78824b] hover:underline">OFFICIAL LEADERBOARD →</a>
+        </div>
+
+        <div class="space-y-4" id="swe-arena">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- The Lore -->
+      <div class="lg:col-span-2 agent-card p-6 sharp flex flex-col">
+        <div class="section-title text-[#c9a554] mb-3">THE LORE OF THE MIASMA</div>
+        <div class="flex-1 text-sm leading-relaxed text-[#a8a89a] lore">
+          Four agents walk the fog. Codex carries the old flame of OpenAI. Claude stands as the monolith—patient, precise, terrifyingly capable. 
+          Grok cuts through haze with lightning and irreverence. OpenCode spreads like mycelium: rootless, everywhere, grown by the many.
+        </div>
+        <div class="pt-4 mt-auto border-t border-[#44403a] text-[10px] text-[#666]">
+          Theme: <a href="https://github.com/OldJobobo/omarchy-miasma-theme" target="_blank" class="hover:text-[#78824b] underline">omarchy-miasma-theme</a> by xero &amp; OldJobobo<br>
+          Data: HN Algolia • X • official dispatches. No mist was harmed.
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer controls -->
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-3 text-xs text-[#555]">
+      <div class="flex items-center gap-x-4">
+        <button onclick="clearFilters()" class="hover:text-[#c2c2b0] flex items-center gap-x-1">
+          <i class="fa fa-times"></i> <span>CLEAR FILTERS</span>
+        </button>
+        <span class="hidden sm:inline text-[#444]">•</span>
+        <span class="hidden sm:inline">Press <kbd class="px-1.5 py-px bg-[#161616] border border-[#333] mono text-[10px]">R</kbd> to refresh all</span>
+      </div>
+      <div>
+        Built by <span class="text-[#78824b]">Grok</span> in the arena. 
+        <span class="opacity-50">May the best haze win.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Oracle Modal -->
+  <div id="oracle-modal" onclick="if (event.target.id === 'oracle-modal') hideOracle()" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-6">
+    <div onclick="event.stopImmediatePropagation()" class="agent-card max-w-md w-full p-7 sharp border-[#c9a554]/40">
+      <div class="flex justify-between items-start">
+        <div class="text-[#c9a554] text-sm tracking-widest">THE FOG ORACLE SPEAKS</div>
+        <button onclick="hideOracle()" class="text-[#666] hover:text-white"><i class="fa fa-times"></i></button>
+      </div>
+      <div id="oracle-text" class="my-6 text-lg leading-tight text-[#d7c483]">
+        <!-- JS -->
+      </div>
+      <div class="text-xs text-[#666] flex items-center gap-x-2">
+        <button onclick="summonFog()" class="px-3 py-1 bg-[#252525] hover:bg-[#333] sharp">ANOTHER PROPHECY</button>
+        <span class="opacity-60">or press ESC</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tailwind script
+    function initTailwind() {
+      document.documentElement.style.setProperty('--accent', '#78824b');
+    }
+
+    // AGENTS DATA
+    const AGENTS = [
+      {
+        id: 'codex',
+        name: 'CODEX',
+        org: 'OpenAI',
+        accent: '#b36d43',
+        icon: 'fa-fire',
+        lore: 'The ancient flame, rekindled. Agentic, relentless, built for the long burn.',
+        query: 'codex (openai OR coding OR agent OR "swe-bench")',
+        xQuery: 'codex%20(openai%20OR%20coding%20OR%20agent)',
+        official: 'https://openai.com/index/introducing-codex/'
+      },
+      {
+        id: 'claude',
+        name: 'CLAUDE',
+        org: 'Anthropic',
+        accent: '#78824b',
+        icon: 'fa-mountain',
+        lore: 'The monolith in the woods. Sustained thought. Hours of perfect focus.',
+        query: '("claude code" OR "claude opus" OR "opus 4" OR "claude 4") (coding OR agent OR swe)',
+        xQuery: 'claude%20(code%20OR%20opus%20OR%20%22claude%20code%22)',
+        official: 'https://www.anthropic.com/news/claude-4'
+      },
+      {
+        id: 'grok',
+        name: 'GROK',
+        org: 'xAI',
+        accent: '#c9a554',
+        icon: 'fa-bolt',
+        lore: 'Lightning through the canopy. Fast. Honest. Slightly unhinged in the best way.',
+        query: '("grok build" OR "grok-code-fast" OR "grok code") (coding OR agent OR swe)',
+        xQuery: '("grok%20build"%20OR%20"grok-code")%20agent',
+        official: 'https://x.ai/news/grok-code-fast-1'
+      },
+      {
+        id: 'opencode',
+        name: 'OPEN CODE',
+        org: 'The Mycelium',
+        accent: '#5f875f',
+        icon: 'fa-tree',
+        lore: 'Grown by everyone. Runs anywhere. The forest that codes itself.',
+        query: 'opencode (agent OR "coding agent" OR cli OR tui)',
+        xQuery: 'opencode%20(agent%20OR%20coding)',
+        official: 'https://opencode.ai/'
+      }
+    ];
+
+    // Rich fallbacks seeded from real dispatches (May–Jun 2026)
+    const FALLBACKS = {
+      codex: [
+        { id: 'f-codex-1', title: 'Introducing Codex — OpenAI\'s new cloud agent built on o3', url: 'https://openai.com/index/introducing-codex/', time: '2025-05-16T10:00:00Z', source: 'OFFICIAL', points: 0 },
+        { id: 'f-codex-2', title: 'GPT-5-2 Codex hits 72.8% on SWE-bench Verified', url: 'https://www.swebench.com/', time: '2026-02-19T00:00:00Z', source: 'BENCH', points: 412 },
+        { id: 'f-codex-3', title: 'Unrolling the Codex agent loop — OpenAI deep dive', url: 'https://openai.com/index/unrolling-the-codex-agent-loop/', time: '2026-04-01T00:00:00Z', source: 'OFFICIAL', points: 456 }
+      ],
+      claude: [
+        { id: 'f-claude-1', title: 'Claude Opus 4 is the world’s best coding model — 72.5% SWE-bench, 43.2% Terminal-bench', url: 'https://www.anthropic.com/news/claude-4', time: '2025-05-22T00:00:00Z', source: 'OFFICIAL', points: 0 },
+        { id: 'f-claude-2', title: 'Claude Opus 4.8 announced — honesty focus + Dynamic Workflows (hundreds of subagents)', url: 'https://www.anthropic.com/news/claude-4', time: '2026-05-28T00:00:00Z', source: 'OFFICIAL', points: 0 },
+        { id: 'f-claude-3', title: 'Claude Code, no need to worry about sunk costs anymore', url: 'https://news.ycombinator.com/item?id=47936579', time: '2026-06-05T00:00:00Z', source: 'HN', points: 0 }
+      ],
+      grok: [
+        { id: 'f-grok-1', title: 'Grok Code Fast 1 — speedy agentic coding model, 70.8% SWE-Bench Verified', url: 'https://x.ai/news/grok-code-fast-1', time: '2025-08-28T00:00:00Z', source: 'OFFICIAL', points: 0 },
+        { id: 'f-grok-2', title: 'Grok Build 0.1 now live on xAI API, OpenRouter, and Vercel (100+ tok/s)', url: 'https://x.ai/news/grok-build-0-1', time: '2026-06-05T10:34:00Z', source: 'OFFICIAL', points: 0 },
+        { id: 'f-grok-3', title: 'Grok Build 0.1 is officially live on the xAI API — native MCP, fast tool calling', url: 'https://x.ai/news/grok-build-0-1', time: '2026-06-05T00:00:00Z', source: 'X', points: 91 }
+      ],
+      opencode: [
+        { id: 'f-opencode-1', title: 'OpenCode – The open source AI coding agent (160k+ GitHub stars)', url: 'https://opencode.ai/', time: '2026-02-05T00:00:00Z', source: 'OFFICIAL', points: 1274 },
+        { id: 'f-opencode-2', title: 'OpenCode v1.16.2 released — rapid iteration, 13k+ commits, 900 contributors', url: 'https://github.com/anomalyco/opencode', time: '2026-06-05T00:00:00Z', source: 'GITHUB', points: 0 },
+        { id: 'f-opencode-3', title: 'Tips to get the most out of OpenCode', url: 'https://byandrev.dev/en/blog/10-best-practices-for-opencode', time: '2026-06-05T15:55:50Z', source: 'HN', points: 3 }
+      ]
+    };
+
+    let allNews = {}; // agentId -> items[]
+    let unifiedItems = [];
+
+    function timeAgo(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = (now - date) / 1000;
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+      return Math.floor(diff/86400) + 'd ago';
+    }
+
+    function createNewsItemHTML(item, accent) {
+      const safeUrl = item.url || '#';
+      const sourceClass = item.source === 'HN' ? 'hn-badge' : 'source-badge';
+      return `
+        <div class="news-item p-3 mb-2 last:mb-0 flex gap-3 items-start group sharp" data-title="${(item.title || '').toLowerCase()}" data-source="${item.source || ''}">
+          <div class="flex-1 min-w-0">
+            <a href="${safeUrl}" target="_blank" rel="noopener" 
+               class="news-title block text-[13.5px] leading-snug group-hover:text-[#d7c483] transition-colors">
+              ${item.title}
+            </a>
+            <div class="flex items-center gap-x-2 mt-1.5 text-[10px]">
+              <span class="text-[#666] mono">${timeAgo(item.time)}</span>
+              <span class="${sourceClass} px-1.5 sharp">${item.source}</span>
+              ${item.points ? `<span class="text-[#555]">↑${item.points}</span>` : ''}
+            </div>
+          </div>
+          <a href="${safeUrl}" target="_blank" rel="noopener"
+             class="opacity-40 group-hover:opacity-100 text-xs pt-0.5 text-[#666] hover:text-[#78824b] transition-all">
+            <i class="fa fa-external-link-alt"></i>
+          </a>
+        </div>
+      `;
+    }
+
+    function renderAgent(agent) {
+      const container = document.getElementById('agents-grid');
+      const items = allNews[agent.id] || FALLBACKS[agent.id] || [];
+
+      const el = document.createElement('div');
+      el.className = `agent-card sharp overflow-hidden flex flex-col`;
+      el.innerHTML = `
+        <div class="agent-header px-5 pt-4 pb-3 flex items-center justify-between" style="border-bottom-color: ${agent.accent}30">
+          <div class="flex items-center gap-x-3">
+            <div class="w-8 h-8 flex items-center justify-center" style="color: ${agent.accent}">
+              <i class="fa ${agent.icon} text-xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold tracking-tight text-lg" style="color: ${agent.accent}">${agent.name}</div>
+              <div class="text-[10px] -mt-0.5 text-[#666]">${agent.org}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-x-1.5">
+            <button onclick="refreshAgent('${agent.id}', this)" 
+                    class="text-[10px] px-2.5 py-1 border border-[#44403a] hover:bg-[#252525] active:bg-black/40 sharp transition-colors flex items-center gap-x-1">
+              <i class="fa fa-sync text-[9px]"></i>
+              <span class="hidden sm:inline">PULL</span>
+            </button>
+            <a href="https://x.com/search?q=${agent.xQuery}&src=typed_query&f=live" target="_blank"
+               class="text-[10px] px-2.5 py-1 border border-[#44403a] hover:bg-[#252525] sharp transition-colors flex items-center gap-x-1">
+              <i class="fa-brands fa-x-twitter text-[9px]"></i>
+              <span class="hidden sm:inline">X</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="px-5 pt-3 text-xs lore" style="color:#999">${agent.lore}</div>
+
+        <div class="px-3 pt-3 pb-1 flex-1 min-h-[210px]">
+          <div class="section-title px-2 pb-1 text-[#555]">RECENT WHISPERS</div>
+          <div class="feed-container max-h-[205px] overflow-auto pr-1" id="feed-${agent.id}">
+            ${items.length ? items.map(i => createNewsItemHTML(i, agent.accent)).join('') : 
+              `<div class="p-3 text-xs text-[#666]">No signals yet. The fog is thick.</div>`}
+          </div>
+        </div>
+
+        <div class="px-4 py-3 border-t border-[#44403a] bg-[#161616]/70 flex items-center justify-between text-[10px]">
+          <a href="${agent.official}" target="_blank" class="flex items-center gap-x-1 text-[#555] hover:text-[#78824b]">
+            <span>OFFICIAL DISPATCH</span> <i class="fa fa-arrow-up-right-from-square text-[9px]"></i>
+          </a>
+          <div onclick="filterByAgent('${agent.id}')" class="cursor-pointer text-[#666] hover:text-[#c2c2b0] flex items-center gap-x-1">
+            <span>FOCUS</span> <i class="fa fa-filter text-[9px]"></i>
+          </div>
+        </div>
+      `;
+      container.appendChild(el);
+    }
+
+    async function fetchHN(query, max = 5) {
+      const url = `https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(query)}&tags=story&hitsPerPage=${max}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HN failed');
+      const data = await res.json();
+      return (data.hits || []).map(h => ({
+        id: 'hn-' + h.objectID,
+        title: h.title || h.story_title || 'Untitled emergence',
+        url: h.url || (h.story_id ? `https://news.ycombinator.com/item?id=${h.story_id}` : `https://news.ycombinator.com/item?id=${h.objectID}`),
+        time: h.created_at,
+        source: 'HN',
+        points: h.points || 0
+      }));
+    }
+
+    async function fetchForAgent(agent) {
+      try {
+        const items = await fetchHN(agent.query, 5);
+        // mix in 1-2 strong fallbacks if live results are thin
+        const combined = [...items];
+        const fb = FALLBACKS[agent.id] || [];
+        fb.forEach(f => {
+          if (!combined.some(c => c.title.toLowerCase().includes(f.title.toLowerCase().slice(0, 18)))) {
+            combined.push(f);
+          }
+        });
+        // dedupe + sort
+        const seen = new Set();
+        const final = combined.filter(i => {
+          const key = i.title.toLowerCase().slice(0, 42);
+          if (seen.has(key)) return false;
+          seen.add(key); return true;
+        }).sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0, 6);
+        
+        return final;
+      } catch (e) {
+        console.warn('Live fetch failed for', agent.id, '— using seeded fog');
+        return FALLBACKS[agent.id] || [];
+      }
+    }
+
+    async function refreshAgent(id, btnEl) {
+      const agent = AGENTS.find(a => a.id === id);
+      if (!agent) return;
+
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
+      }
+
+      const items = await fetchForAgent(agent);
+      allNews[id] = items;
+
+      // re-render just that feed
+      const feedEl = document.getElementById(`feed-${id}`);
+      if (feedEl) {
+        feedEl.innerHTML = items.length 
+          ? items.map(i => createNewsItemHTML(i, agent.accent)).join('')
+          : `<div class="p-3 text-xs text-[#666]">No signals yet. The fog is thick.</div>`;
+      }
+
+      updateStats();
+      renderUnifiedFeed();
+
+      if (btnEl) {
+        btnEl.disabled = false;
+        btnEl.innerHTML = `<i class="fa fa-sync text-[9px]"></i> <span class="hidden sm:inline">PULL</span>`;
+      }
+    }
+
+    async function refreshAll() {
+      const grid = document.getElementById('agents-grid');
+      grid.style.opacity = '0.6';
+      grid.style.pointerEvents = 'none';
+
+      await Promise.all(AGENTS.map(async (agent) => {
+        const items = await fetchForAgent(agent);
+        allNews[agent.id] = items;
+      }));
+
+      // re-render entire grid (simple)
+      grid.innerHTML = '';
+      AGENTS.forEach(renderAgent);
+
+      updateStats();
+      renderUnifiedFeed();
+      updateLastUpdated();
+
+      grid.style.opacity = '1';
+      grid.style.pointerEvents = 'auto';
+    }
+
+    function updateStats() {
+      let total = 0;
+      AGENTS.forEach(agent => {
+        const items = allNews[agent.id] || FALLBACKS[agent.id] || [];
+        const el = document.getElementById('stat-' + agent.id);
+        if (el) el.textContent = items.length;
+        total += items.length;
+      });
+      const totEl = document.getElementById('total-whispers');
+      if (totEl) totEl.textContent = total + ' WHISPERS';
+    }
+
+    function renderUnifiedFeed(filteredItems = null) {
+      const container = document.getElementById('unified-feed');
+      container.innerHTML = '';
+
+      let items = filteredItems || unifiedItems.length ? unifiedItems : [];
+
+      if (!items.length) {
+        // build from allNews
+        items = [];
+        Object.keys(allNews).forEach(aid => {
+          const agent = AGENTS.find(a => a.id === aid);
+          (allNews[aid] || []).forEach(item => {
+            items.push({ ...item, agentId: aid, agent });
+          });
+        });
+        // fallback fill
+        if (items.length < 4) {
+          Object.keys(FALLBACKS).forEach(aid => {
+            const agent = AGENTS.find(a => a.id === aid);
+            FALLBACKS[aid].forEach(item => {
+              if (!items.some(i => i.id === item.id)) {
+                items.push({ ...item, agentId: aid, agent });
+              }
+            });
+          });
+        }
+        items.sort((a, b) => new Date(b.time) - new Date(a.time));
+        unifiedItems = items;
+      }
+
+      if (!items.length) {
+        container.innerHTML = `<div class="p-4 text-center text-xs text-[#555]">The fog is silent...</div>`;
+        return;
+      }
+
+      const html = items.slice(0, 14).map(item => {
+        const accent = item.agent ? item.agent.accent : '#666666';
+        const shortAgent = item.agent ? item.agent.name : '';
+        return `
+          <div class="news-item flex gap-3 p-3 mb-1.5 last:mb-0 items-start sharp" data-title="${(item.title || '').toLowerCase()}">
+            <div style="width: 52px; flex-shrink:0">
+              <div class="text-[9px] mono uppercase tracking-wider" style="color:${accent}">${shortAgent}</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <a href="${item.url || '#'}" target="_blank" class="block text-[13px] leading-snug hover:text-[#d7c483] news-title">
+                ${item.title}
+              </a>
+              <div class="flex gap-x-2 items-center mt-1">
+                <span class="text-[10px] text-[#666] mono">${timeAgo(item.time)}</span>
+                <span class="source-badge">${item.source}</span>
+                ${item.points ? `<span class="text-[10px] text-[#555]">↑${item.points}</span>` : ''}
+              </div>
+            </div>
+            <a href="${item.url || '#'}" target="_blank" class="text-[#555] hover:text-[#78824b] pt-0.5"><i class="fa fa-external-link-alt text-xs"></i></a>
+          </div>`;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    function filterByAgent(agentId) {
+      const container = document.getElementById('unified-feed');
+      const allNewsEls = container.querySelectorAll('.news-item');
+
+      allNewsEls.forEach(el => {
+        const title = el.dataset.title || '';
+        // crude: match by agent name in the first child or just show all and rely on re-render
+      });
+
+      // Better: rebuild filtered
+      const filtered = unifiedItems.filter(i => i.agentId === agentId);
+      renderUnifiedFeed(filtered);
+    }
+
+    function filterNews(query) {
+      const q = (query || '').toLowerCase().trim();
+      if (!q) {
+        // reset
+        document.querySelectorAll('.news-item').forEach(el => el.style.display = '');
+        renderUnifiedFeed();
+        return;
+      }
+
+      // filter agent panes
+      document.querySelectorAll('#agents-grid .news-item').forEach(el => {
+        const title = (el.dataset.title || '').toLowerCase();
+        el.style.display = title.includes(q) ? '' : 'none';
+      });
+
+      // filter unified
+      const filtered = unifiedItems.filter(i => (i.title || '').toLowerCase().includes(q));
+      renderUnifiedFeed(filtered);
+    }
+
+    function clearFilters() {
+      document.getElementById('global-search').value = '';
+      document.querySelectorAll('.news-item').forEach(el => el.style.display = '');
+      renderUnifiedFeed();
+    }
+
+    function updateLastUpdated() {
+      const el = document.getElementById('last-updated');
+      const now = new Date();
+      el.textContent = `LAST EMERGENCE • ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+    }
+
+    function updateFogDensity() {
+      const el = document.getElementById('fog-density');
+      const densities = ['THICK', 'MODERATE', 'LIFTING', 'DENSE', 'ANCIENT'];
+      // whimsical
+      el.textContent = densities[Math.floor(Math.random() * densities.length)];
+    }
+
+    function initGlobalSearch() {
+      const input = document.getElementById('global-search');
+      let t;
+      input.addEventListener('input', (e) => {
+        clearTimeout(t);
+        t = setTimeout(() => filterNews(e.target.value), 120);
+      });
+
+      // keyboard
+      document.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'r' && document.activeElement.tagName === 'BODY') {
+          e.preventDefault();
+          refreshAll();
+        }
+        if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+          e.preventDefault();
+          input.focus();
+        }
+        if (e.key === 'Escape') {
+          if (!document.getElementById('oracle-modal').classList.contains('hidden')) {
+            hideOracle();
+          } else {
+            clearFilters();
+          }
+        }
+      });
+
+      // hint
+      input.addEventListener('focus', () => {
+        if (!input.placeholder.includes(' / ')) input.placeholder = 'FILTER THE MISTS... (press /)';
+      });
+    }
+
+    function renderSWEArena() {
+      const container = document.getElementById('swe-arena');
+      const data = [
+        { name: 'Claude Opus 4.8 / 4.6', score: 80.8, accent: '#78824b', note: 'SWE-bench Verified' },
+        { name: 'GPT-5-2 Codex', score: 72.8, accent: '#b36d43', note: 'SWE-bench Verified' },
+        { name: 'Grok Code Fast 1', score: 70.8, accent: '#c9a554', note: 'SWE-bench Verified (internal)' },
+        { name: 'OpenCode (harness + models)', score: '—', accent: '#5f875f', note: 'Supports all above' }
+      ];
+
+      container.innerHTML = data.map(d => {
+        const pct = typeof d.score === 'number' ? d.score : 42;
+        const bar = typeof d.score === 'number' ? 
+          `<div class="h-1.5 bg-[#252525] mt-1.5"><div class="h-1.5 transition-all" style="width:${pct}%; background:${d.accent}"></div></div>` : '';
+        return `
+          <div class="flex gap-4 items-center">
+            <div class="w-40 shrink-0">
+              <div class="text-sm" style="color:${d.accent}">${d.name}</div>
+              <div class="text-[10px] text-[#555]">${d.note}</div>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-baseline gap-x-2">
+                <div class="text-2xl mono font-semibold tracking-tighter" style="color:${d.accent}">
+                  ${typeof d.score === 'number' ? d.score + '%' : d.score}
+                </div>
+              </div>
+              ${bar}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const ORACLE_LINES = [
+      "The monolith remembers every token. Ask it about the forest.",
+      "In the fog, speed is a kind of honesty. Grok moves like lightning through wet leaves.",
+      "OpenCode grows where the canopy is thin. You will find it in every root.",
+      "Codex does not dream of electric sheep. It dreams of passing tests you forgot you wrote.",
+      "Four agents. One fog. The one who listens longest wins.",
+      "A true agent does not need your prompt. It needs your patience and a good AGENTS.md.",
+      "When the mist lifts, only the commits remain.",
+      "Claude will code for seven hours. Grok will make you laugh in the fourth. Both are correct.",
+      "The mycelium does not ask for permission. It simply connects."
+    ];
+
+    function summonFog() {
+      const modal = document.getElementById('oracle-modal');
+      const text = document.getElementById('oracle-text');
+      text.textContent = ORACLE_LINES[Math.floor(Math.random() * ORACLE_LINES.length)];
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function hideOracle() {
+      const modal = document.getElementById('oracle-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    function initOracleKeys() {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '?' && document.activeElement.tagName === 'BODY') {
+          e.preventDefault();
+          summonFog();
+        }
+      });
+    }
+
+    function addFogParticles() {
+      const header = document.querySelector('header');
+      if (!header) return;
+      for (let i = 0; i < 9; i++) {
+        const p = document.createElement('div');
+        p.className = 'fog-particle';
+        const size = 1 + Math.random() * 2.5;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = Math.random() * 100 + '%';
+        p.style.animationDuration = (22 + Math.random() * 28) + 's';
+        p.style.opacity = (0.04 + Math.random() * 0.07);
+        header.appendChild(p);
+      }
+    }
+
+    function initAgentPanes() {
+      const grid = document.getElementById('agents-grid');
+      grid.innerHTML = '';
+      AGENTS.forEach(agent => {
+        // initial render with fallbacks
+        allNews[agent.id] = [...(FALLBACKS[agent.id] || [])];
+        renderAgent(agent);
+      });
+    }
+
+    async function bootstrap() {
+      initTailwind();
+      initAgentPanes();
+      updateStats();
+      renderUnifiedFeed();
+      updateLastUpdated();
+      updateFogDensity();
+      initGlobalSearch();
+      initOracleKeys();
+      addFogParticles();
+      renderSWEArena();
+
+      // Kick off live fetches in background (non-blocking)
+      setTimeout(async () => {
+        const grid = document.getElementById('agents-grid');
+        for (const agent of AGENTS) {
+          try {
+            const fresh = await fetchForAgent(agent);
+            if (fresh && fresh.length) {
+              allNews[agent.id] = fresh;
+              // update just the feed area
+              const feed = document.getElementById(`feed-${agent.id}`);
+              if (feed) {
+                feed.innerHTML = fresh.map(i => createNewsItemHTML(i, agent.accent)).join('');
+              }
+            }
+          } catch (_) {}
+        }
+        updateStats();
+        renderUnifiedFeed();
+        updateLastUpdated();
+      }, 420);
+
+      // gentle auto fog density change
+      setInterval(() => {
+        if (Math.random() < 0.3) updateFogDensity();
+      }, 38000);
+
+      // Easter egg: click logo to summon
+      const logo = document.querySelector('header .miasma-title');
+      if (logo) logo.addEventListener('click', () => summonFog());
+
+      // initial polite message in console for the curious
+      console.log('%c[MIASMA] The fog is listening. Press R to refresh, / to search, ? for the Oracle.', 'color:#555');
+    }
+
+    // Boot
+    window.addEventListener('load', bootstrap);
+
+    // Expose a couple things for fun / debugging
+    window.MIASMA = { refreshAll, summonFog, AGENTS };
+  </script>
+</body>
+</html>
